@@ -2,4 +2,3 @@ streamlit
 cassandra-driver
 pymongo
 pandas
-python-3.9.6

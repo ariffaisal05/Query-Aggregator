@@ -1,5 +1,5 @@
 import streamlit as st
-from Cassandra import connect_to_cassandra
+from CassandraDB import connect_to_cassandra
 from Mongodb import connect_to_mongodb
 import json
 import pandas as pd

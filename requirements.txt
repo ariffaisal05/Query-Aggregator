@@ -1,4 +1,0 @@
-streamlit
-cassandra-driver
-pymongo
-pandas

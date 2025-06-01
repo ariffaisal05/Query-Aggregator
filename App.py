@@ -5,6 +5,9 @@ import json
 import pandas as pd
 import time
 
+st.set_page_config(page_title="🔍 Multi-Database Query Interface", layout="wide")
+st.markdown("Gunakan sidebar di kiri untuk navigasi ke halaman lain")
+
 st.title("🔍 Multi-Database Query Interface")
 
 # --- Cassandra Query Input ---

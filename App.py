@@ -63,7 +63,7 @@ def run_cassandra_query(query_str):
         return pd.DataFrame()
 
 # --- UI Streamlit ---
-st.title("🧠 Gabungkan Data dari Cassandra & MongoDB")
+st.header("🧠 Gabungkan Data dari Cassandra & MongoDB")
 
 # 1. Input query Cassandra
 cassandra_query = st.text_area("1️⃣ Masukkan query Cassandra (CQL):", "SELECT * FROM posts;")
@@ -84,7 +84,7 @@ if st.button("🔁 Jalankan dan Gabungkan"):
     else:
         st.warning("Salah satu data kosong, pastikan query menghasilkan data.")
 
-st.subheader("⚙️ Indexing")
+st.header("⚙️ Indexing")
 index_field_cassandra = st.text_input("Masukkan field Cassandra untuk indexing:", "author")
 st.text("*author_id sudah menjadi partition key pada cassandra")
 index_field_mongo = st.text_input("Masukkan field MongoDB untuk indexing:", "author_id")

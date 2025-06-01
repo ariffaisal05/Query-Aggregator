@@ -84,23 +84,55 @@ if st.button("🔁 Jalankan dan Gabungkan"):
     else:
         st.warning("Salah satu data kosong, pastikan query menghasilkan data.")
 
+st.subheader("⚙️ Indexing")
+index_field_cassandra = st.text_input("Masukkan field Cassandra untuk indexing:", "author")
+st.text("*author_id sudah menjadi partition key pada cassandra")
+index_field_mongo = st.text_input("Masukkan field MongoDB untuk indexing:", "author_id")
 
-st.title("⚡️ Indexing")
-# 4. Melakukan Indexing
-if st.button("Buat Index MongoDB pada author_id"):
+
+if st.button("🔧 Lakukan Indexing"):
+     # Cassandra Index
+    try:
+        cassandra_session = connect_to_cassandra("robd")
+        create_index_query = f"CREATE INDEX IF NOT EXISTS ON posts ({index_field_cassandra});"
+        cassandra_session.execute(create_index_query)
+        st.success(f"Index Cassandra dibuat pada field: {index_field_cassandra}")
+    except Exception as e:
+        st.error(f"Gagal membuat index Cassandra: {e}")
+
+        # MongoDB Index
     try:
         mongo_collection = connect_to_mongodb("ROBD", "Author")
-        mongo_collection.create_index("author_id")
-        st.success("Index MongoDB pada 'author_id' berhasil dibuat.")
+        mongo_collection.create_index([(index_field_mongo, 1)])
+        st.success(f"Index MongoDB dibuat pada field: {index_field_mongo}")
     except Exception as e:
         st.error(f"Gagal membuat index MongoDB: {e}")
+    
 
-if st.button("Hapus Index MongoDB pada author_id"):
+# Tombol Hapus Index
+if st.button("🧹 Hapus Index"):
+    # Hapus Cassandra Index
+    cassandra_keyspace = "robd"
+    cassandra_table = "posts"
+    try:
+        cassandra_session = connect_to_cassandra("robd")
+        index_name = f"{cassandra_keyspace}.{cassandra_table}_{index_field_cassandra}_idx"
+        drop_query = f"DROP INDEX IF EXISTS {index_name};"
+        cassandra_session.execute(drop_query)
+        st.success(f"🗑️ Index Cassandra '{index_name}' dihapus")
+    except Exception as e:
+        st.error(f"❌ Gagal menghapus index Cassandra: {e}")
+
+    # Hapus MongoDB Index
     try:
         mongo_collection = connect_to_mongodb("ROBD", "Author")
-        mongo_collection.drop_index("author_id")
-        st.success("Index MongoDB pada 'author_id' berhasil dihapus.")
+        indexes = mongo_collection.index_information()
+        for name in indexes:
+            if index_field_mongo in indexes[name]['key'][0]:
+                mongo_collection.drop_index(name)
+                st.success(f"🗑️ Index MongoDB '{name}' dihapus")
+                break
+        else:
+            st.info("ℹ️ Tidak ditemukan index MongoDB dengan field tersebut.")
     except Exception as e:
-        st.error(f"Gagal menghapus index MongoDB: {e}")
-
-st.text("*author_id sudah menjadi partition key pada cassandra")
+        st.error(f"❌ Gagal menghapus index MongoDB: {e}")

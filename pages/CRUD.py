@@ -26,7 +26,7 @@ removed_by = st.text_input("removed_by")
 total_awards = st.number_input("total_awards_received", step=0.1)
 awarders = st.text_input("awarders (comma separated)")
 
-if st.button("➕ Tambahkan Data"):
+if st.button("➕ Tambahkan Data Cassandra"):
     try:
         session.execute("""
             INSERT INTO posts (author_id, id, author, author_flair_text, created_utc,
@@ -66,7 +66,7 @@ field_to_update = st.selectbox("Pilih kolom yang ingin diupdate (string)", [
 ])
 new_value = st.text_input("Nilai baru")
 
-if st.button("✅ Update Data"):
+if st.button("✅ Update Data Cassandra"):
     try:
         check = session.execute("SELECT * FROM posts WHERE author_id=%s AND id=%s",
                                 (update_author_id, update_post_id)).all()
@@ -81,6 +81,21 @@ if st.button("✅ Update Data"):
     except Exception as e:
         st.error(f"❌ Error saat update: {e}")
 
+# === DELETE ===
+st.header("🗑️ Hapus Post berdasarkan author_id dan id")
+delete_author_id = st.number_input("author_id", key="delete_id", step=1)
+delete_post_id = st.text_input("id post", key="delete_post_id")
+
+if st.button("Hapus Post"):
+    try:
+        session.execute(
+            "DELETE FROM posts WHERE author_id=%s AND id=%s",
+            (delete_author_id, delete_post_id)
+        )
+        st.success("✅ Post berhasil dihapus.")
+    except Exception as e:
+        st.error(f"❌ Gagal hapus post: {e}")
+
 # CRUD MONGODB
 st.title("📦 CRUD MongoDB - Collection: Author")
 # === CREATE ===
@@ -91,7 +106,7 @@ karma = st.number_input("Karma", min_value=0, step=1)
 is_bot = st.selectbox("isBot", [True, False])
 is_verified = st.selectbox("isVerified", [True, False])
 
-if st.button("➕ Tambahkan Data"):
+if st.button("➕ Tambahkan Data MongoDB"):
     if collection.find_one({"author_id": int(author_id)}):
         st.warning("❗ Data dengan author_id ini sudah ada.")
     else:
@@ -124,7 +139,7 @@ new_karma = st.number_input("Karma Baru", step=1)
 new_is_bot = st.selectbox("isBot Baru", [True, False])
 new_is_verified = st.selectbox("isVerified Baru", [True, False])
 
-if st.button("✅ Update Data"):
+if st.button("✅ Update Data MongoDB"):
     author = collection.find_one({"author_id": int(author_id)})
 
     if author:
@@ -149,9 +164,9 @@ if st.button("✅ Update Data"):
 
 # === DELETE ===
 st.header("🗑️ Hapus Data Berdasarkan Author ID")
-delete_id = st.number_input("Masukkan Author ID untuk Dihapus", step=1, key="delete_id")
+delete_id_mongo = st.number_input("Masukkan Author ID untuk Dihapus", step=1, key="delete_id_mongo")
 if st.button("Hapus"):
-    result = collection.delete_one({"author_id": int(delete_id)})
+    result = collection.delete_one({"author_id": int(delete_id_mongo)})
     if result.deleted_count:
         st.success("✅ Data berhasil dihapus.")
     else:
